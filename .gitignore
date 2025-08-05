@@ -1,2 +1,4 @@
 .venv 
-.env
+*.env
+test_agent.py
+*__pycache__/
