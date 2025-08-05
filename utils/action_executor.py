@@ -1,7 +1,7 @@
+# utils/action_executor.py (Versión con Apagado Directo)
 import os
 import sys
 import logging
-import asyncio # Importamos asyncio para el apagado
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -23,23 +23,18 @@ async def execute_action(action_data: dict, update: Update, context: ContextType
 
         if action_type == "RESTART":
             await update.message.reply_text("Confirmado. Reiniciando el sistema...")
+            # os.execv reemplaza el proceso actual con uno nuevo, reiniciando el script.
             os.execv(sys.executable, ['python'] + sys.argv)
         
         elif action_type == "SHUTDOWN":
             await update.message.reply_text("Confirmado. Apagando sistemas. Adiós.")
-            
-            # --- LÓGICA DE APAGADO CORREGIDA ---
-            async def _shutdown():
-                # Damos un segundo para asegurar que todos los mensajes se envíen
-                await asyncio.sleep(1)
-                # Apagamos la aplicación de forma segura
-                await context.application.shutdown()
-            
-            # Programamos la tarea de apagado para que se ejecute en segundo plano
-            asyncio.create_task(_shutdown())
-            return # Salimos del ejecutor para no procesar más cosas
+            # --- SOLUCIÓN FINAL ---
+            # Usamos sys.exit() para terminar el proceso de Python de forma limpia e inmediata
+            # después de enviar el mensaje final. Es el método más fiable.
+            sys.exit("Apagado seguro solicitado por el propietario.")
+            # --------------------
 
-    # --- El resto de la lógica sigue igual ---
+    # --- El resto de la lógica para otras acciones sigue igual ---
     if action_type == "SIMPLE_REPLY":
         pass
 

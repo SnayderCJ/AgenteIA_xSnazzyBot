@@ -4,7 +4,7 @@ from telegram.ext import Application, ContextTypes, MessageHandler, filters, Com
 
 # Importamos desde nuestros nuevos módulos
 from config import settings
-from core.agent import run_agent
+from core.master_agent import run_master_agent as run_agent
 from utils.action_executor import execute_action
 
 logging.basicConfig(
