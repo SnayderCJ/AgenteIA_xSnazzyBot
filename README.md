@@ -37,7 +37,7 @@ Sigue estos pasos para poner en marcha el proyecto desde cero.
 1.  **Clonar o Crear el Repositorio:**
     ```bash
     git clone [https://github.com/SnayderCJ/AgenteIA_xSnazzyBot.git](https://github.com/SnayderCJ/AgenteIA_xSnazzyBot.git) # Opcional si usas Git
-    cd mi_agente_ia
+    cd AgenteIA_xSnazzyBot
     ```
 
 2.  **Crear y Activar Entorno Virtual:**
@@ -52,11 +52,7 @@ Sigue estos pasos para poner en marcha el proyecto desde cero.
     ```
 
 3.  **Instalar las Dependencias:**
-    Primero, asegúrate de que todas tus librerías estén listadas en `requirements.txt`. Puedes generar el archivo con:
-    ```bash
-    pip freeze > requirements.txt
-    ```
-    Luego, instala todo con un solo comando:
+     Instala todo con un solo comando:
     ```bash
     pip install -r requirements.txt
     ```
