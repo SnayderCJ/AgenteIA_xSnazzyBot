@@ -1,4 +1,5 @@
 .venv 
 *.env
 test_agent.py
+/qrcodes
 *__pycache__/
