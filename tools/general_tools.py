@@ -5,6 +5,9 @@ import pytz
 import os
 import pyshorteners
 import requests
+import dns.resolver
+import requests
+from bs4 import BeautifulSoup
 from urllib.parse import quote_plus
 from duckduckgo_search import DDGS
 
@@ -106,3 +109,65 @@ def convertir_a_morse(texto: str) -> dict:
         return {"action": "SIMPLE_REPLY", "text": f"Texto en Morse:\n`{morse}`", "parse_mode": "Markdown"}
     except KeyError as e:
         return {"action": "SIMPLE_REPLY", "text": f"No se pudo convertir. Caracter no soportado: '{e.args[0]}'"}
+
+def invertir_texto(texto: str) -> dict:
+    """Invierte el orden de los caracteres en un texto dado."""
+    print(f"🛠️ Herramienta General llamada: invertir_texto...")
+    texto_invertido = texto[::-1]
+    return {"action": "SIMPLE_REPLY", "text": f"Texto invertido:\n`{texto_invertido}`", "parse_mode": "Markdown"}
+
+def busqueda_web(query: str) -> dict:
+    """Realiza una búsqueda general en la web usando DuckDuckGo y devuelve los primeros resultados."""
+    print(f"🛠️ Herramienta General llamada: busqueda_web para '{query}'...")
+    try:
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=3))
+            if not results:
+                return {"action": "SIMPLE_REPLY", "text": f"No encontré resultados para '{query}'."}
+            
+            # Formateamos los resultados para una lectura fácil
+            respuesta = f"**Resultados de búsqueda para '{query}':**\n\n"
+            for r in results:
+                respuesta += f"📄 **{r['title']}**\n[Leer más]({r['href']})\n\n"
+            
+            return {"action": "SIMPLE_REPLY", "text": respuesta, "parse_mode": "Markdown"}
+    except Exception as e:
+        return {"action": "SIMPLE_REPLY", "text": f"Error al realizar la búsqueda: {e}"}
+
+def consultar_registro_spf(dominio: str) -> dict:
+    """Consulta y muestra los registros SPF de un dominio de internet para verificar la autenticidad del correo."""
+    print(f"🛠️ Herramienta General llamada: consultar_registro_spf para '{dominio}'...")
+    try:
+        answers = dns.resolver.resolve(dominio, 'TXT')
+        spf_records = []
+        for rdata in answers:
+            if 'spf' in rdata.to_text().lower():
+                spf_records.append(rdata.to_text())
+        
+        if not spf_records:
+            return {"action": "SIMPLE_REPLY", "text": f"No se encontraron registros SPF para el dominio `{dominio}`.", "parse_mode": "Markdown"}
+
+        respuesta = f"**Registros SPF para `{dominio}`:**\n\n" + "\n".join(spf_records)
+        return {"action": "SIMPLE_REPLY", "text": respuesta, "parse_mode": "Markdown"}
+    except Exception as e:
+        return {"action": "SIMPLE_REPLY", "text": f"No se pudo consultar el dominio. Error: {e}"}
+
+def obtener_vista_previa_web(url: str) -> dict:
+    """Obtiene una vista previa (título y descripción) de una página web a partir de su URL."""
+    print(f"🛠️ Herramienta General llamada: obtener_vista_previa_web para '{url}'...")
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=5)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        titulo = soup.title.string if soup.title else "Sin título"
+        
+        descripcion = ""
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc:
+            descripcion = meta_desc.get('content', '')
+
+        respuesta = f"**Vista Previa de:** {url}\n\n**Título:** {titulo}\n\n**Descripción:** {descripcion[:200]}..."
+        return {"action": "SIMPLE_REPLY", "text": respuesta}
+    except Exception as e:
+        return {"action": "SIMPLE_REPLY", "text": f"No se pudo obtener la vista previa de la URL. Error: {e}"}
